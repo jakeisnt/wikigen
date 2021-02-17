@@ -1,0 +1,95 @@
+{
+  "nodes": {
+    "haskellNix": {
+      "locked": {
+        "lastModified": 1613437968,
+        "narHash": "sha256-WCntVHGU+Vh3AdyHBztWElL+1ti5r2nQQWXws33wh0M=",
+        "owner": "input-output-hk",
+        "repo": "haskell.nix",
+        "rev": "05f99684cb3b86703e910da6be1e619447788c7b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "input-output-hk",
+        "ref": "master",
+        "repo": "haskell.nix",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1613226215,
+        "narHash": "sha256-3rA5cGIrBHD6yeKhNhsF7/t461ww25oJY8KyBb0IhjU=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "ff96a0fa5635770390b184ae74debea75c3fd534",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "ref": "nixos-unstable",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1613439028,
+        "narHash": "sha256-APXApPYvpRh0kwtwACOW8MPXsgCZBN3BFVds94096Bs=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "4ebd7a3d64b4f778c5636121b56d20f4c2ee4e26",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "master",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "orgmode-parse": {
+      "inputs": {
+        "haskellNix": "haskellNix",
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1613452007,
+        "narHash": "sha256-AA5m2YhRxG367TbOpHnsajHnlWQr0wZrOKepuOrZcKY=",
+        "owner": "jakeisnt",
+        "repo": "orgmode-parse",
+        "rev": "63e61ca78cbf0d6ee987831fc0464ec5106a1c90",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jakeisnt",
+        "ref": "master",
+        "repo": "orgmode-parse",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "orgmode-parse": "orgmode-parse",
+        "utils": "utils"
+      }
+    },
+    "utils": {
+      "locked": {
+        "lastModified": 1610051610,
+        "narHash": "sha256-U9rPz/usA1/Aohhk7Cmc2gBrEEKRzcW4nwPWMPwja4Y=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "3982c9903e93927c2164caa727cd3f6a0e6d14cc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

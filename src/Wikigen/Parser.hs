@@ -2,14 +2,14 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 
-module Parser
+module Wikigen.Parser
   ( ParsingException (..),
     parseOrg,
     runParser,
   )
 where
 
-import Ast
+import Wikigen.Ast
 import qualified Data.Attoparsec.Text as A
 import Data.Char (isSpace)
 import qualified Data.OrgMode.Parse as O
@@ -105,8 +105,8 @@ parseOrg curTime todoKeywords =
               "file:" ->
                 -- 5: length of 'file:'
                 let path = T.unpack $ T.drop 5 l
-                 in OrgFileLink {Ast.filepath = path, Ast.description = d}
-              _ -> OrgHyperLink {Ast.link = l, Ast.description = d}
+                 in OrgFileLink {filepath = path, description = d}
+              _ -> OrgHyperLink {link = l, description = d}
     -- TODO: catch insecure links here!
 
     mapEither :: (a -> Either e b) -> ([a] -> [b])

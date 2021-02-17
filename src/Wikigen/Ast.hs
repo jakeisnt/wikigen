@@ -8,7 +8,7 @@
 -- https://github.com/volhovm/orgstat/blob/master/src/OrgStat/Ast.hs
 
 -- | Abstract syntax tree for org.
-module Ast
+module Wikigen.Ast
   ( Clock (..),
     Org (..),
     OrgSection (..),

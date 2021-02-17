@@ -3,10 +3,11 @@
 
 module Main where
 
-import Ast
+import Wikigen.Ast
+import Wikigen.IO
+
 import Data.Char (isSpace)
 import qualified Data.Text as T
-import IO
 import Lucid
 import System.FilePath (takeBaseName, (-<.>))
 import qualified Text.Show as S

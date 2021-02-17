@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables,TupleSections,OverloadedStrings, NoImplicitPrelude, DeriveAnyClass #-}
 
 -- https://github.com/volhovm/orgstat/blob/master/src/OrgStat/IO.hs
-module IO
+module Wikigen.IO
   ( readOrgFile
   ) where
 
@@ -14,8 +14,8 @@ import           System.FilePath                ( takeBaseName
                                                 , takeExtension
                                                 )
 
-import           Ast                            ( Org )
-import           Parser                         ( runParser )
+import           Wikigen.Ast                            ( Org )
+import           Wikigen.Parser                         ( runParser )
 import qualified Text.Show
 
 data OrgIOException

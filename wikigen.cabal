@@ -16,10 +16,32 @@ maintainer:          jake@isnt.online
 build-type:          Simple
 extra-source-files:  CHANGELOG.md, README.org
 
-executable wikigen
-  main-is:             Main.hs
+-- executable wikigen
+  -- main-is:             Main.hs
   -- other-modules:
   -- other-extensions:
-  build-depends:       base >=4.14 && <4.15
+  -- build-depends:       base >=4.14 && <4.15
   -- hs-source-dirs:
+  -- default-language:    Haskell2010
+
+executable wikigen
+  main-is:             Main.hs
+  build-depends:       base
+                     , bytestring
+                     , directory
+                     , exceptions
+                     , filepath
+                     , universum
+                     , time
+                     , lens
+                     , lucid
+                     , text
+                     , orgmode-parse
+                     , attoparsec
+  hs-source-dirs:      src
   default-language:    Haskell2010
+  ghc-options:         -threaded  -Wall -O2
+  default-extensions:  NoImplicitPrelude
+                       OverloadedStrings
+                       RecordWildCards
+                       TypeApplications

@@ -1,0 +1,4 @@
+#+TITLE: wikigen
+
+a static site generator from my wiki
+probably has bugs : (

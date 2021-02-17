@@ -9,14 +9,11 @@
 
   outputs = { self, nixpkgs, orgmode-parse, utils, ... }:
     utils.lib.eachDefaultSystem (system:
-      let pkgs = import nixpkgs { inherit system; };
+      let
+        pkgs = import nixpkgs { inherit system; };
+        package = pkgs.callPackage ./default.nix { inherit orgmode-parse; };
       in {
-        defaultPackage =
-          pkgs.callPackage ./default.nix { inherit orgmode-parse; };
-        devShell = pkgs.mkShell {
-          buildInputs = {
-
-          };
-        };
+        defaultPackage = package;
+        devShell = package.env;
       });
 }

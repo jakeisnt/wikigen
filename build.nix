@@ -8,7 +8,7 @@ mkDerivation {
   isExecutable = true;
   executableHaskellDepends = with pkgs.haskellPackages; [
     base
-    my-orgmode-parse
+    orgmode-parse
     lens
     universum
     time

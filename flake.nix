@@ -7,17 +7,17 @@
     utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, orgmode-parse, utils, ... }:
+  outputs = { self, nixpkgs, utils, ... }:
     utils.lib.eachDefaultSystem (system:
       let
         inherit (lib) attrValues;
         compiler = "ghc8104";
         lib = nixpkgs.lib;
-        my-orgmode-parse = with pkgs.haskellPackages;
+        orgmode-parse = with pkgs.haskellPackages;
           callPackage ./orgmode-parse.nix { };
 
         overlay = (self: super:
-          let changeset = { my-orgmode-parse = my-orgmode-parse; };
+          let changeset = { orgmode-parse = orgmode-parse; };
           in {
             haskellPackages = super.haskellPackages.override {
               overrides = hself: hsuper: hsuper // changeset;

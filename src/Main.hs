@@ -7,10 +7,10 @@ import qualified Data.Text as T
 import Data.Either (fromRight)
 import Options.Generic -- use that harg library later!
 
-data Wiki = Generate { dirPath :: FilePath }
+data CliOpts = Generate { dirPath :: FilePath }
           | Analyze { } deriving (Generic, Show)
 
-instance ParseRecord Wiki
+instance ParseRecord CliOpts
 
 main :: IO ()
 main = do
@@ -38,11 +38,6 @@ parseOrg t = do
   maybeFile <- runIO $ readOrg def t
   return $ fromRight (error "bad") maybeFile
 
+-- write Html to a text buffer
 unparseHtml :: Pandoc -> IO T.Text
 unparseHtml ast = runIO (writeHtml5String def ast) >>= handleError
-
--- -- Removes the either
--- fromRight :: a -> Either b a -> a
--- fromRight dflt mb = case mb of
---   Right answer -> answer
---   Left _ -> dflt

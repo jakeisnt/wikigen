@@ -19,7 +19,6 @@ module Wikigen.Ast
     Output (..),
     orgTitle,
     orgTags,
-    -- orgClocks,
     orgSubtrees,
     clockDuration,
     orgDurations,
@@ -107,7 +106,6 @@ newtype OrgSection = OrgSection [OrgContent] deriving (Show, Eq)
 -- is ignored.
 data Org = Org
   { _orgTitle :: Text,
-    -- _orgText :: Text,
     _orgStructuredText :: OrgSection,
     _orgTags :: [Text],
     _orgClocks :: [Clock],

@@ -17,6 +17,7 @@ import           System.FilePath                ( takeBaseName
 import           Wikigen.Ast                            ( Org )
 import           Wikigen.Parser                         ( runParser )
 import qualified Text.Show
+import GHC.IO.Unsafe
 
 data OrgIOException
     = OrgIOException Text
@@ -54,6 +55,8 @@ readOrgFile fp = do
   -- get filename
   let filename = T.pack $ takeBaseName fname
   -- first argument is all of the TODO strings for todo notes
+  print content
   parsed <- runParser ["TODO"] content
+  print parsed
   pure (filename, parsed)
   where fpt = T.pack fp

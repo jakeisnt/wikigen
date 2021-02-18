@@ -10,11 +10,18 @@ import Data.Char (isSpace)
 import qualified Data.Text as T
 import Lucid
 import System.FilePath (takeBaseName, (-<.>))
-import qualified Text.Show as S
+import System.Environment
 import Universum
 
 main :: IO ()
-main = parseFile "./file.org"
+main = do
+  args <- getArgs
+  progName <- getProgName          -- IO String
+  _ <- mapM putStrLn args  
+  putStrLn progName
+  case (nonEmpty args) of
+    Just a -> parseFile $ head a
+    Nothing -> error "Provide a file name to parse!"
 
 parseFile :: String -> IO ()
 parseFile filePath = do

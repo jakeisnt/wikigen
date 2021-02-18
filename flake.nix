@@ -28,8 +28,7 @@
           inherit system;
           overlays = [ overlay ];
         };
-
-        package = with pkgs.haskellPackages; callPackage ./build.nix { };
+        package = with pkgs.haskellPackages; callPackage (callCabal2nix "wikigen" ./.) { };
       in {
         defaultPackage = package;
         defaultOverlay = overlay;

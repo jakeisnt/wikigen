@@ -16,14 +16,6 @@ maintainer:          jake@isnt.online
 build-type:          Simple
 extra-source-files:  CHANGELOG.md, README.org
 
--- executable wikigen
-  -- main-is:             Main.hs
-  -- other-modules:
-  -- other-extensions:
-  -- build-depends:       base >=4.14 && <4.15
-  -- hs-source-dirs:
-  -- default-language:    Haskell2010
-
 executable wikigen
   main-is:             Main.hs
   build-depends:       base
@@ -35,13 +27,15 @@ executable wikigen
                      , lucid
                      , text
                      , pandoc
+                     , pandoc-types
                      , optparse-generic
                      , shelly
                      , filemanip
 
   hs-source-dirs:      src
   default-language:    Haskell2010
-  ghc-options:         -threaded  -Wall -O2
+  ghc-options:         -threaded  -O2
+  -- -Wall 
   -- default-extensions:  NoImplicitPrelude
   --                      OverloadedStrings
   --                      RecordWildCards

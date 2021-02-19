@@ -16,7 +16,7 @@ import Wikigen.File.Utils (addNDirectory, addDirectory, ensureDirsExist)
 
 -- cli options
 data CliOpts = Generate { dirPath :: FilePath }
-          | Analyze { } deriving (Generic, Show)
+             | Analyze { } deriving (Generic, Show)
 
 instance ParseRecord CliOpts
 

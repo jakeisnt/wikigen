@@ -17,6 +17,7 @@ swapNDirectory depth fp dirname =
         (element depth .~ dirpath) pathArr
   in path --- </> filename
 
+swapDirectory :: FilePath -> String -> FilePath
 swapDirectory = swapNDirectory 0
 
 -- add a directory at the nth index 

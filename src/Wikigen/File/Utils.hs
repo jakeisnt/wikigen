@@ -1,9 +1,9 @@
 module Wikigen.File.Utils
-       (swapDirectory, addNDirectory, addDirectory) where
+       (swapDirectory, addNDirectory, addDirectory, ensureDirsExist) where
 
 import Control.Lens
 import System.FilePath
-
+import System.Directory
 
 -- replace dirname at depth n with the string
 swapNDirectory :: Int -> FilePath -> String -> FilePath
@@ -32,7 +32,22 @@ addNDirectory depth fp dirname =
       -- exit lens mode
       pr = pathArr & (_drop depth) %~ (dirpath:)
       path = joinPath $ reverse $ pr
-  in path --- </> filename
+  in path 
 
 addDirectory :: FilePath -> String -> FilePath
 addDirectory = addNDirectory 0
+
+ensureDirExists :: FilePath -> IO ()
+ensureDirExists fp = do
+  exists <- doesDirectoryExist fp
+  if   not exists
+  then return ()
+  else createDirectory fp
+                    
+-- ensure all of the paths 
+ensureDirsExist :: FilePath -> IO ()
+ensureDirsExist fp = do
+  let splitFp = splitPath fp;
+      -- [path, path two, path three four]
+      enumFp = map (\n -> concat $ take n splitFp) [1..(length splitFp)];
+  mapM_ ensureDirExists enumFp

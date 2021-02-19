@@ -12,9 +12,7 @@ import System.FilePath.GlobPattern (GlobPattern)
 import Wikigen.Metadata (getMetadata)
 import Wikigen.Transform (modifyAst)
 import System.FilePath
-import Wikigen.File.Utils (swapDirectory, addNDirectory, addDirectory)
--- import Wikigen.Utils((|>))
-import Control.Lens
+import Wikigen.File.Utils (addNDirectory, addDirectory, ensureDirsExist)
 
 -- cli options
 data CliOpts = Generate { dirPath :: FilePath }
@@ -33,10 +31,17 @@ main = do
 search :: GlobPattern -> FilePath -> IO [String]
 search pat = F.find always (fileName ~~? pat)
 
+-- Ensure the argument is NonEmpty; throw an error if it is
+ensureNonEmpty :: [a] -> NonEmpty a
+ensureNonEmpty a = fromMaybe (error "it was empty : (") (nonEmpty a)
+
+-- get the export path of a file
+getExportPath :: FilePath -> FilePath
+getExportPath fp = (addNDirectory 2 fp "public") -<.> ".html";
+
 -- scan an entire wiki and output its html representation
 -- https://rosettacode.org/wiki/Walk_a_directory/Recursively#Haskell
 -- presumes this structure:
-
 -- root (provided path)
 --  | - Journals
 --  | - WikiPages
@@ -54,11 +59,9 @@ generateWikiFile fp = do
   metadata <- return $ getMetadata [ast]
   modAst <- return $ modifyAst metadata ast
   result <- unparseHtml modAst
-  let
-    outFilePath = (addNDirectory 1 fp "public") -<.> ".html";
-  putStrLn fp
-  putStrLn (addNDirectory 2 fp "public")
-  writeFile outFilePath result
+  let expPath = getExportPath fp;
+  ensureDirsExist $ takeDirectory expPath
+  writeFile (getExportPath fp) result
 
 -- parse an Org file to its Pandoc representation
 -- handle errors (currently in a bad way)

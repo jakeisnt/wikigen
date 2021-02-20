@@ -6,6 +6,7 @@ module Wikigen.Transform
 import Text.Pandoc
 import Wikigen.Types
 import Universum
+import System.Directory
 -- import Debug.Trace
 import System.FilePath
 import qualified Data.Text as T
@@ -63,6 +64,6 @@ transformAst meta (Pandoc m block) = Pandoc m $ map (transformBlock meta) block
 
     -- transform a link to its corresponding target link on the web
     transformLinkTarget :: Metadata -> Target -> Target
-    transformLinkTarget m (url, title) =
+    transformLinkTarget m (url, title) = 
       (T.pack $ let uri = T.unpack url in
           if isFileLink uri then uri -<.> ".html" else uri, title)

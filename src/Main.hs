@@ -14,7 +14,7 @@ import Wikigen.Transform (transformAst)
 import System.FilePath
 import Text.Pandoc.Builder
 import System.Directory
-import Wikigen.File.Utils (addNDirectory, addDirectory, ensureDirsExist)
+import Wikigen.File.Utils (addNDirectory, addDirectory)
 
 -- cli options
 data CliOpts = Generate { dirPath :: FilePath }

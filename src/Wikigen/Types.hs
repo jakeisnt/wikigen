@@ -13,7 +13,6 @@ mergeMetadata m1 m2 = Metadata { fileLinks = fileLinks m1 ++ fileLinks m2 }
 
 mapMetadata :: [Metadata] -> Metadata
 mapMetadata ms = foldl' mergeMetadata mtMeta ms
-  where mtMeta = Metadata { fileLinks = [] }
 
 mtMeta :: Metadata
 mtMeta = Metadata { fileLinks = [] }

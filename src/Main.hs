@@ -64,7 +64,13 @@ writeHomePage fp args = do
 -- takes a list of tags and associated files with the tags!
 generateHomePage :: [(Text, [FilePath])] -> Pandoc
 generateHomePage args =
-  let relFPs = map (\(t, fps) -> (t, (map (\fp -> "./" ++ (T.unpack t) ++ "/" ++ takeFileName fp)) fps)) args in
+  let relFPs = map (\(t, fps) ->
+                      (t,
+                       (map
+                        (\fp -> "./" ++ (T.unpack t) ++ "/" ++ (takeFileName fp) -<.> ".html"))
+                       fps))
+               args
+  in
   setTitle "Jacob Chvatal's Wiki" $ doc $
   divWith nullAttr $ Text.Pandoc.Builder.fromList $ 
    concatMap Text.Pandoc.Builder.toList

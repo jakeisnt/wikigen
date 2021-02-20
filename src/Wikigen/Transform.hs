@@ -6,6 +6,7 @@ module Wikigen.Transform
 import Text.Pandoc
 import Wikigen.Types
 import Universum
+-- import Debug.Trace
 import System.FilePath
 import qualified Data.Text as T
 
@@ -48,20 +49,20 @@ transformAst meta (Pandoc m block) = Pandoc m $ map (transformBlock meta) block
       Math mtyp txt -> inline -- tex math literal
       RawInline fmt txt -> inline
       -- (alt text, list of inlines in text label, link target)
-      Link attr inlines tgt ->  Link attr (map (transformInline meta) inlines) (transformLinkTarget meta tgt) 
-      Image attr inlines target ->  Image attr (map (transformInline meta) inlines) target -- same as link
+      Link attr inlines tgt -> Link attr (map (transformInline meta) inlines) (transformLinkTarget meta tgt) 
+      Image attr inlines target -> Image attr (map (transformInline meta) inlines) target -- same as link
       Note blocks -> Note $ map (transformBlock meta) blocks
       Span attr inlines -> Span attr $ map (transformInline meta) inlines -- generic inline container; unused by org?
       Space -> inline
       SoftBreak -> inline
       LineBreak -> inline
 
+    -- determine if a link is a link to a local file or not
+    isFileLink :: FilePath -> Bool
+    isFileLink fp = and [(takeExtension fp == ".org"), (takeFileName fp == fp)]
+
+    -- transform a link to its corresponding target link on the web
     transformLinkTarget :: Metadata -> Target -> Target
-    transformLinkTarget m (url, title) = (T.pack $
-                                         let uri = T.unpack url in
-                                          case takeExtension uri of
-                                            ".org" -> uri -<.> ".html"
-                                            _ -> uri
-                                         , title)
-
-
+    transformLinkTarget m (url, title) =
+      (T.pack $ let uri = T.unpack url in
+          if isFileLink uri then uri -<.> ".html" else uri, title)

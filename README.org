@@ -1,4 +1,29 @@
 #+TITLE: wikigen
 
-a static site generator from my wiki
-probably has bugs : (
+A static site generator for my wiki.
+
+Built to support a directory structure of this type:
+
+#+begin_src txt
+wiki/
+ - journals/
+   - file.org
+   - file2.org
+ - pages/
+   - file3.org
+   - file3.org
+#+end_src
+
+Pass it the file path to 'wiki' and it'll generate:
+
+wiki/
+- public/
+  - index.html
+  - journals/
+    - file.html
+    - file2.html
+  - pages/
+    - file3.html
+    - file3.html
+
+with index.html having links to all of the pages in journals/ and pages/.

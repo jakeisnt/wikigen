@@ -27,3 +27,5 @@ wiki/
     - file3.html
 
 with index.html having links to all of the pages in journals/ and pages/.
+
+These directories should probably be created prior to avoid any strange errors.

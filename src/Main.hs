@@ -13,6 +13,7 @@ import Wikigen.Metadata (getMetadata)
 import Wikigen.Transform (modifyAst)
 import System.FilePath
 import Text.Pandoc.Builder
+import System.Directory
 import Wikigen.File.Utils (addNDirectory, addDirectory, ensureDirsExist)
 
 -- cli options
@@ -50,8 +51,9 @@ generateWiki :: FilePath -> IO ()
 generateWiki fp = do
   journalFiles <- search "*.org" $ addDirectory fp "journals"
   pageFiles <- search "*.org" $ addDirectory fp "pages"
-  writeHomePage (fp ++ "/public/index.html") [("journals", journalFiles), ("pages", pageFiles)]
+  rfp <- canonicalizePath $ fp ++ "/public/index.html"
   mapM_ generateWikiFile (pageFiles ++ journalFiles)
+  writeHomePage rfp [("journals", journalFiles), ("pages", pageFiles)]
 
 writeHomePage :: FilePath -> [(Text, [FilePath])] -> IO ()
 writeHomePage fp args = do
@@ -82,8 +84,8 @@ generateWikiFile fp = do
   modAst <- return $ modifyAst metadata ast
   result <- unparseHtml modAst
   let expPath = getExportPath fp;
-  ensureDirsExist $ takeDirectory expPath
-  writeFile (getExportPath fp) result
+  -- ensureDirsExist $ takeDirectory expPath
+  writeFile expPath result
 
 -- parse an Org file to its Pandoc representation
 -- handle errors (currently in a bad way)

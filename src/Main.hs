@@ -64,16 +64,19 @@ writeHomePage fp args = do
 -- takes a list of tags and associated files with the tags!
 generateHomePage :: [(Text, [FilePath])] -> Pandoc
 generateHomePage args =
+  let relFPs = map (\(t, fps) -> (t, (map (\fp -> "./" ++ (T.unpack t) ++ "/" ++ takeFileName fp)) fps)) args in
   setTitle "Jacob Chvatal's Wiki" $ doc $
   divWith nullAttr $ Text.Pandoc.Builder.fromList $ 
    concatMap Text.Pandoc.Builder.toList
    (map (\(txt, paths) ->
          para (str txt) <> bulletList
          (map (\path ->
-                 let url = getExportPath path in
-                   plain $ link (T.pack url) (T.pack url) (str $ T.pack $ takeBaseName path))
+                 let url = T.pack path
+                     name = T.pack $ takeBaseName path
+                 in
+                   plain $ link url name (str name))
            paths)
-      ) args) 
+      ) relFPs) 
   
 -- Read a wiki file and output its html representation
 generateWikiFile :: FilePath -> IO ()

@@ -1,15 +1,17 @@
 {-#LANGUAGE DeriveGeneric, OverloadedStrings, DataKinds, TypeOperators, NoImplicitPrelude #-}
 
 module Wikigen.Transform
-       ( modifyAst       ) where
+       ( transformAst ) where
 
 import Text.Pandoc
 import Wikigen.Types
 import Universum
+import System.FilePath
+import qualified Data.Text as T
 
 -- Transform the Pandoc document AST
-modifyAst :: Metadata -> Pandoc -> Pandoc
-modifyAst meta (Pandoc m block) = Pandoc m $ map (transformBlock meta) block
+transformAst :: Metadata -> Pandoc -> Pandoc
+transformAst meta (Pandoc m block) = Pandoc m $ map (transformBlock meta) block
   where
     transformBlock :: Metadata -> Block -> Block
     transformBlock meta b = case b of
@@ -45,12 +47,21 @@ modifyAst meta (Pandoc m block) = Pandoc m $ map (transformBlock meta) block
       Code attr txt -> inline
       Math mtyp txt -> inline -- tex math literal
       RawInline fmt txt -> inline
-      Link attr inlines tgt ->  Link attr (map (transformInline meta) inlines) tgt -- (alt text, list of inlines in text label, link target)
+      -- (alt text, list of inlines in text label, link target)
+      Link attr inlines tgt ->  Link attr (map (transformInline meta) inlines) (transformLinkTarget meta tgt) 
       Image attr inlines target ->  Image attr (map (transformInline meta) inlines) target -- same as link
       Note blocks -> Note $ map (transformBlock meta) blocks
       Span attr inlines -> Span attr $ map (transformInline meta) inlines -- generic inline container; unused by org?
-
       Space -> inline
       SoftBreak -> inline
       LineBreak -> inline
+
+    transformLinkTarget :: Metadata -> Target -> Target
+    transformLinkTarget m (url, title) = (T.pack $
+                                         let uri = T.unpack url in
+                                          case takeExtension uri of
+                                            ".org" -> uri -<.> ".html"
+                                            _ -> uri
+                                         , title)
+
 

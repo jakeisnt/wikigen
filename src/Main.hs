@@ -10,7 +10,7 @@ import System.FilePath.Find as F
 import Universum
 import System.FilePath.GlobPattern (GlobPattern)
 import Wikigen.Metadata (getMetadata)
-import Wikigen.Transform (modifyAst)
+import Wikigen.Transform (transformAst)
 import System.FilePath
 import Text.Pandoc.Builder
 import System.Directory
@@ -99,7 +99,7 @@ generateWikiFile fp = do
   fileText <- readFile fp
   ast <- parseOrg fileText
   metadata <- return $ getMetadata [ast]
-  modAst <- return $ modifyAst metadata ast
+  modAst <- return $ transformAst metadata ast
   result <- unparseHtml modAst
   let expPath = getExportPath fp;
   -- ensureDirsExist $ takeDirectory expPath

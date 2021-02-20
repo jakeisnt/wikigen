@@ -12,6 +12,7 @@ import System.FilePath.GlobPattern (GlobPattern)
 import Wikigen.Metadata (getMetadata)
 import Wikigen.Transform (modifyAst)
 import System.FilePath
+import Text.Pandoc.Builder
 import Wikigen.File.Utils (addNDirectory, addDirectory, ensureDirsExist)
 
 -- cli options
@@ -46,11 +47,32 @@ getExportPath fp = (addNDirectory 2 fp "public") -<.> ".html";
 --  | - Journals
 --  | - WikiPages
 generateWiki :: FilePath -> IO ()
-generateWiki s = do
-  journalFiles <- search "*.org" $ addDirectory s "journals"
-  pageFiles <- search "*.org" $ addDirectory s "pages"
+generateWiki fp = do
+  journalFiles <- search "*.org" $ addDirectory fp "journals"
+  pageFiles <- search "*.org" $ addDirectory fp "pages"
+  writeHomePage (fp ++ "/public/index.html") [("journals", journalFiles), ("pages", pageFiles)]
   mapM_ generateWikiFile (pageFiles ++ journalFiles)
 
+writeHomePage :: FilePath -> [(Text, [FilePath])] -> IO ()
+writeHomePage fp args = do
+  html <- unparseHtml $ generateHomePage args
+  writeFile fp html
+  
+-- generate the home page for the wiki files
+-- takes a list of tags and associated files with the tags!
+generateHomePage :: [(Text, [FilePath])] -> Pandoc
+generateHomePage args =
+  setTitle "Jacob Chvatal's Wiki" $ doc $
+  divWith nullAttr $ Text.Pandoc.Builder.fromList $ 
+   concatMap Text.Pandoc.Builder.toList
+   (map (\(txt, paths) ->
+         para (str txt) <> bulletList
+         (map (\path ->
+                 let url = getExportPath path in
+                   plain $ link (T.pack url) (T.pack url) (str $ T.pack $ takeBaseName path))
+           paths)
+      ) args) 
+  
 -- Read a wiki file and output its html representation
 generateWikiFile :: FilePath -> IO ()
 generateWikiFile fp = do

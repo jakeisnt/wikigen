@@ -1,4 +1,4 @@
-{-#LANGUAGE DeriveGeneric, OverloadedStrings, DataKinds, TypeOperators, NoImplicitPrelude #-}
+{-#LANGUAGE DeriveGeneric, OverloadedStrings, DataKinds, TypeOperators, NoImplicitPrelude, ScopedTypeVariables #-}
 
 module Main where
 
@@ -41,6 +41,13 @@ ensureNonEmpty a = fromMaybe (error "it was empty : (") (nonEmpty a)
 getExportPath :: FilePath -> FilePath
 getExportPath fp = (addNDirectory 2 fp "public") -<.> ".html";
 
+-- sort using a comparison function that operates under a monad
+sortOnM :: (Ord a, Monad m) => (b -> m a) -> [b] -> m [b]
+sortOnM getComp ls = do
+  comparators <- mapM getComp ls
+  let zipped = zip comparators ls;
+  return $ map snd $ sortWith fst zipped
+
 -- scan an entire wiki and output its html representation
 -- https://rosettacode.org/wiki/Walk_a_directory/Recursively#Haskell
 -- presumes this structure:
@@ -53,7 +60,9 @@ generateWiki fp = do
   pageFiles <- search "*.org" $ addDirectory fp "pages"
   rfp <- canonicalizePath $ fp ++ "/public/index.html"
   mapM_ generateWikiFile (pageFiles ++ journalFiles)
-  writeHomePage rfp [("journals", journalFiles), ("pages", pageFiles)]
+  
+  sortedPFiles <- sortOnM System.Directory.getModificationTime pageFiles
+  writeHomePage rfp [("journals", reverse journalFiles), ("pages", sortedPFiles)]
 
 writeHomePage :: FilePath -> [(Text, [FilePath])] -> IO ()
 writeHomePage fp args = do

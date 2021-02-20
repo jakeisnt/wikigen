@@ -3,16 +3,21 @@
 module Main where
 
 import Text.Pandoc
+
 import qualified Data.Text as T
 import Options.Generic -- use that harg library later!
 import System.FilePath.Find as F
-import System.FilePath
-import System.FilePath.GlobPattern (GlobPattern)
 import Universum
+import System.FilePath.GlobPattern (GlobPattern)
+import Wikigen.Metadata (getMetadata)
+import Wikigen.Transform (modifyAst)
+import System.FilePath
+import Text.Pandoc.Builder
+import Wikigen.File.Utils (addNDirectory, addDirectory, ensureDirsExist)
 
 -- cli options
 data CliOpts = Generate { dirPath :: FilePath }
-          | Analyze { } deriving (Generic, Show)
+             | Analyze { } deriving (Generic, Show)
 
 instance ParseRecord CliOpts
 
@@ -23,48 +28,62 @@ main = do
       Generate _ -> generateWiki $ dirPath cli
       Analyze -> putStrLn ("analyzing beep beep boop" :: String)
 
--- metadata collected from teh wiki
-data Metadata = Metadata { links :: Maybe (String, String) } deriving (Generic, Show)
-
--- make sure the directory exists
--- throw an error otherwise
--- ensureDirectoryExists :: FilePath -> ()
--- ensureDirectoryExists s = if not $ isDirectory s then error "directory does not exist" else ()
-
 -- finds files matching a pattern in a directory
 search :: GlobPattern -> FilePath -> IO [String]
 search pat = F.find always (fileName ~~? pat)
 
+-- Ensure the argument is NonEmpty; throw an error if it is
+ensureNonEmpty :: [a] -> NonEmpty a
+ensureNonEmpty a = fromMaybe (error "it was empty : (") (nonEmpty a)
+
+-- get the export path of a file
+getExportPath :: FilePath -> FilePath
+getExportPath fp = (addNDirectory 2 fp "public") -<.> ".html";
+
 -- scan an entire wiki and output its html representation
 -- https://rosettacode.org/wiki/Walk_a_directory/Recursively#Haskell
+-- presumes this structure:
+-- root (provided path)
+--  | - Journals
+--  | - WikiPages
 generateWiki :: FilePath -> IO ()
-generateWiki s = do
-  files <- search "*.org" s
-  mapM_ generateWikiFile files
+generateWiki fp = do
+  journalFiles <- search "*.org" $ addDirectory fp "journals"
+  pageFiles <- search "*.org" $ addDirectory fp "pages"
+  writeHomePage (fp ++ "/public/index.html") [("journals", journalFiles), ("pages", pageFiles)]
+  mapM_ generateWikiFile (pageFiles ++ journalFiles)
 
-(|>) :: a -> (a -> b) -> b
-(|>) arg function = function arg
+writeHomePage :: FilePath -> [(Text, [FilePath])] -> IO ()
+writeHomePage fp args = do
+  html <- unparseHtml $ generateHomePage args
+  writeFile fp html
+  
+-- generate the home page for the wiki files
+-- takes a list of tags and associated files with the tags!
+generateHomePage :: [(Text, [FilePath])] -> Pandoc
+generateHomePage args =
+  setTitle "Jacob Chvatal's Wiki" $ doc $
+  divWith nullAttr $ Text.Pandoc.Builder.fromList $ 
+   concatMap Text.Pandoc.Builder.toList
+   (map (\(txt, paths) ->
+         para (str txt) <> bulletList
+         (map (\path ->
+                 let url = getExportPath path in
+                   plain $ link (T.pack url) (T.pack url) (str $ T.pack $ takeBaseName path))
+           paths)
+      ) args) 
   
 -- Read a wiki file and output its html representation
 generateWikiFile :: FilePath -> IO ()
-generateWikiFile s = do
-  fileText <- readFile s
+generateWikiFile fp = do
+  fileText <- readFile fp
   ast <- parseOrg fileText
   metadata <- return $ getMetadata [ast]
   modAst <- return $ modifyAst metadata ast
   result <- unparseHtml modAst
-  let
-    outFileName = s |> takeFileName |> (\a -> replaceExtension a ".html");
-    outFilePath = s |> takeDirectory |> takeDirectory |> (\a -> a ++ "/public");
-  writeFile (outFilePath </> outFileName) result
-
--- Extracts globally relevant metadata from pandoc objects
-getMetadata :: [Pandoc] -> Metadata
-getMetadata docs = Metadata {links = Just ("a", "b")}
-
--- Transform the Pandoc document AST
-modifyAst :: Metadata -> Pandoc -> Pandoc
-modifyAst metadata ast = ast
+  let expPath = getExportPath fp;
+  ensureDirsExist $ takeDirectory expPath
+  writeFile (getExportPath fp) result
 
 -- parse an Org file to its Pandoc representation
 -- handle errors (currently in a bad way)

@@ -29,6 +29,7 @@ executable wikigen
                      , text
                      , pandoc
                      , pandoc-types
+                     , doctemplates
                      , optparse-generic
                      , shelly
                      , filemanip

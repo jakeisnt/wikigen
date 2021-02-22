@@ -11,11 +11,18 @@ import Universum
 import System.FilePath.GlobPattern (GlobPattern)
 import Wikigen.Metadata (getMetadata)
 import Wikigen.Transform (transformAst)
+import Text.Pandoc.Options
 import System.FilePath
 import Text.Pandoc.Builder
 import System.Directory
-import qualified Text.Blaze.Html5 as H
 import Wikigen.File.Utils (addNDirectory, addDirectory)
+import qualified Data.Map.Strict as Map
+import qualified Text.DocTemplates.Internal
+import qualified Data.Text.Internal.Lazy
+
+import qualified Text.Blaze.Html5 as H
+-- import Text.Blaze.Html.Renderer.String as H
+import Text.Blaze.Html.Renderer.Text as H
 
 -- cli options
 data CliOpts = Generate { dirPath :: FilePath }
@@ -67,7 +74,7 @@ generateWiki fp = do
 
 writeHomePage :: FilePath -> [(Text, [FilePath])] -> IO ()
 writeHomePage fp args = do
-  html <- unparseHtml $ generateHomePage args
+  html <- return $ unparseHtml $ generateHomePage args
   writeFile fp html
   
 -- generate the home page for the wiki files
@@ -101,7 +108,7 @@ generateWikiFile fp = do
   ast <- parseOrg fileText
   metadata <- return $ getMetadata [ast]
   modAst <- return $ transformAst metadata ast
-  result <- unparseHtml modAst
+  result <- return $ unparseHtml modAst
   let expPath = getExportPath fp;
   -- ensureDirsExist $ takeDirectory expPath
   writeFile expPath result
@@ -114,9 +121,22 @@ parseOrg t = do
   return $ fromRight (error "bad") maybeFile
 
 -- write Html to a text buffer
-unparseHtml :: Pandoc -> IO T.Text
-unparseHtml ast = runIO (writeHtml5String def ast) >>= handleError
+unparseHtml :: Pandoc -> Data.Text.Internal.Lazy.Text
+-- T.Text
+unparseHtml ast = H.renderHtml $ pandocToHtml ast
+
   where
+    -- pandocToHtml :: a -> H.Html
+    pandocToHtml ast = writeHtml5 def ast
+                       -- { 
+                   -- writerVariables =
+                   --   Context $
+                   --   Map.fromList (
+                   --     [("css", toVal ("<style>body{color:#333;font-family:helvetica,arial,sans-serif;line-height:1.5;margin:0 auto;max-width:40em;padding:0 1em}h1,h2,h3,h4,h5,h6{margin:1em 0 .5em;line-height:1.2}a:link,a:visited{color:#03c;text-decoration:none}a:active,a:focus,a:hover{color:#06f;text-decoration:underline}h1 a:empty:before,h2 a:empty:before,h3 a:empty:before,h4 a:empty:before,h5 a:empty:before,h6 a:empty:before{content:#}h1 a:empty,h2 a:empty,h3 a:empty,h4 a:empty,h5 a:empty,h6 a:empty{visibility:hidden;padding-left:.25em}h1:hover a:empty,h2:hover a:empty,h3:hover a:empty,h4:hover a:empty,h5:hover a:empty,h6:hover a:empty{visibility:visible}img{max-width:100%}figure{margin:1em 0;text-align:center}figcaption{font-size:small}code,kbd,pre,samp{color:#009;font-family:monospace,monospace}pre kbd{color:#060}blockquote,pre{background:#eee;padding:.5em}pre{overflow:auto}blockquote{border-left:medium solid #ccc;margin:1em 0}blockquote :first-child{margin-top:0}blockquote :last-child{margin-bottom:0}table{border-collapse:collapse}td,th{border:thin solid #999;padding:.3em .4em;text-align:left}@media (prefers-color-scheme:dark){body{color:#bbb;background:#222}a:link,a:visited{color:#9bf}a:active,a:hover{color:#acf}code,kbd,pre,samp{color:#6cf}pre kbd{color:#9c9}blockquote,pre{background:#111}blockquote{border-color:#444}td,th{border-color:#666}}</style>" :: Text))])
+                   -- }
+                        -- ("css", "./main.css")
+                         -- ast -- >>= handleError
+                          
     -- add some information to the header that blaze html neglected to
     augmentBlaze :: H.Html -> H.Html
     augmentBlaze html =

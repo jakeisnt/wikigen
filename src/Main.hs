@@ -14,7 +14,6 @@ import Wikigen.Transform (transformAst)
 import System.FilePath
 import Text.Pandoc.Builder
 import System.Directory
-import qualified Text.Blaze.Html.Renderer.String as H
 import qualified Text.Blaze.Html5 as H
 import Wikigen.File.Utils (addNDirectory, addDirectory)
 
@@ -68,7 +67,7 @@ generateWiki fp = do
 
 writeHomePage :: FilePath -> [(Text, [FilePath])] -> IO ()
 writeHomePage fp args = do
-  html <- return $ unparseHtml $ generateHomePage args
+  html <- unparseHtml $ generateHomePage args
   writeFile fp html
   
 -- generate the home page for the wiki files
@@ -102,7 +101,7 @@ generateWikiFile fp = do
   ast <- parseOrg fileText
   metadata <- return $ getMetadata [ast]
   modAst <- return $ transformAst metadata ast
-  result <- return $ unparseHtml modAst
+  result <- unparseHtml modAst
   let expPath = getExportPath fp;
   -- ensureDirsExist $ takeDirectory expPath
   writeFile expPath result
@@ -116,19 +115,7 @@ parseOrg t = do
 
 -- write Html to a text buffer
 unparseHtml :: Pandoc -> IO T.Text
-unparseHtml ast = runIO $ writeHtml5String (def { writerPreferAscii = True
-                        , writerTableOfContents = True
-                        , writerSectionDivs = True
-                        , writerWrapText = WrapPreserve
-                        , writerHtmlQTags = True
-                        , writerExtensions =
-                                extensionsFromList
-                                [ Ext_fancy_lists
-                                , Ext_link_attributes
-                                , Ext_pandoc_title_block
-                                ]
-                        -- , writerVariables = [("css", "./public/main.css")]
-                        }) ast >>= handleError
+unparseHtml ast = runIO (writeHtml5String def ast) >>= handleError
   where
     -- add some information to the header that blaze html neglected to
     augmentBlaze :: H.Html -> H.Html
@@ -137,4 +124,5 @@ unparseHtml ast = runIO $ writeHtml5String (def { writerPreferAscii = True
       H.header $ do
         H.title "title"
       H.body $ html
-        -- initial css source: https://github.com/susam/spcss/blob/master/sp.min.css
+
+-- initial css source: https://github.com/susam/spcss/blob/master/sp.min.css

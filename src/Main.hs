@@ -16,6 +16,8 @@ import Text.Pandoc.Builder
 import System.Directory
 import Wikigen.File.Utils (addNDirectory, addDirectory)
 import Wikigen.Html (unparseHtml)
+import Wikigen.Utils (getTitle)
+import Wikigen.Types (Title(..))
 
 -- cli options
 data CliOpts = Generate { dirPath :: FilePath }
@@ -66,36 +68,33 @@ generateWiki fp = do
   
   mapM_ (\(fpath, ast) -> generateWikiFile fpath ast) $ zip (pageFPs ++ journalFPs) (pageAsts ++ journalAsts)
   
-  sortedPFiles <- sortOnM System.Directory.getModificationTime pageFPs
-  writeHomePage rfp [("journals", reverse journalFPs), ("pages", sortedPFiles)]
+  sortedPFiles <- sortOnM (System.Directory.getModificationTime . fst) (zip pageFPs pageAsts)
+  writeHomePage rfp [("journals", reverse $ zip journalFPs journalAsts), ("pages", sortedPFiles)]
 
-writeHomePage :: FilePath -> [(Text, [FilePath])] -> IO ()
+writeHomePage :: FilePath -> [(Text, [(FilePath, Pandoc)])] -> IO ()
 writeHomePage fp args = do
   html <- unparseHtml $ generateHomePage args
   writeFile fp html
   
 -- generate the home page for the wiki files
 -- takes a list of tags and associated files with the tags!
-generateHomePage :: [(Text, [FilePath])] -> Pandoc
+generateHomePage :: [(Text, [(FilePath, Pandoc)])] -> Pandoc
 generateHomePage args =
-  let relFPs = map (\(t, fps) ->
-                      (t,
+  let relFPsAndNames = map (\(t, fps) -> (t,
                        (map
-                        (\fp -> "./" ++ (T.unpack t) ++ "/" ++ (takeFileName fp) -<.> ".html"))
-                       fps))
-               args
+                        (\(fp, docast) -> ("./" ++ (T.unpack t) ++ "/" ++ (takeFileName fp) -<.> ".html", getTitle docast))
+                       fps))) args
   in
   doc $ divWith nullAttr $ Text.Pandoc.Builder.fromList $ 
-   concatMap Text.Pandoc.Builder.toList
-   (map (\(txt, paths) ->
+   concatMap Text.Pandoc.Builder.toList $
+   map (\(txt, paths) ->
          para (str txt) <> bulletList
-         (map (\path ->
+         (map (\(path, (Title name)) ->
                  let url = T.pack path
-                     name = T.pack $ takeBaseName path
                  in
                    plain $ link url name (str name))
            paths)
-      ) relFPs) 
+      ) relFPsAndNames
 
 parseFile :: FilePath -> IO Pandoc
 parseFile fp = do

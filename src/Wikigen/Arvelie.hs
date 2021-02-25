@@ -19,6 +19,11 @@ parseDay s = strptime "%Y-%m-%d" s <&> (localDay . fst)
 
 -- TODO: when this is complete enough, give it its own library!
 
+-- ensure that the passed string has the correct length
+-- if not, pad it with the necessary number of prefixes
+ensurePrefixes :: Char -> Int -> String -> String
+ensurePrefixes c num str = take ( num - length str) (repeat c) ++ str
+
 -- The Aravelie calendar date format.
 -- The default instance of show is fine here.
 data Arvelie = Arvelie
@@ -28,7 +33,7 @@ data Arvelie = Arvelie
   deriving (Eq, Ord)
 
 instance Show Arvelie where
-  show a = show (year a) ++ (week a):show (day a)
+  show a = ensurePrefixes '0' 2 (show (year a)) ++ (week a):ensurePrefixes '0' 2 (show (day a))
 
 -- The Neralie time format.
 data Neralie = Neralie
@@ -37,7 +42,7 @@ data Neralie = Neralie
   deriving (Eq, Ord)
 
 instance Show Neralie where
-  show n = show (beat n) ++ ":" ++ show (pulse n)
+  show n = ensurePrefixes '0' 3 (show (beat n)) ++ ":" ++ ensurePrefixes '0' 3 (show (pulse n))
 
 data AlternateTime = AlternateTime
   { date :: Arvelie

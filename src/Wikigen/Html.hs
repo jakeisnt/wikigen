@@ -10,6 +10,7 @@ import qualified Text.Blaze.Html5.Attributes as A
 import qualified Text.Blaze.Html.Renderer.String as H
 import qualified Data.Text as T
 import Text.Pandoc
+import Data.Map
 
 newtype Title = Title String
 
@@ -17,9 +18,16 @@ newtype Title = Title String
 unparseHtml :: Pandoc -> IO T.Text
 unparseHtml ast = do
   html <- runIO (writeHtml5String def ast) >>= handleError
-  return $ augmentHtml (Title "title") html
+  return $ augmentHtml (getTitle ast) html
 
   where
+    -- get the title of the file out of the metadata
+    getTitle :: Pandoc -> Title
+    getTitle (Pandoc m _) = Title $ case lookupMeta ("title" :: Text) m of
+                                      Just v -> "Jacob Chvatal's Wiki"
+                                      Nothing -> "Jacob Chvatal's Wiki"
+
+    
     -- add additional information to the html exported
     augmentHtml :: Title -> Text -> Text
     augmentHtml tt = T.pack . H.renderHtml . (augmentBlaze tt) . H.preEscapedToHtml

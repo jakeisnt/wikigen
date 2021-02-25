@@ -57,13 +57,17 @@ sortOnM getComp ls = do
 --  | - WikiPages
 generateWiki :: FilePath -> IO ()
 generateWiki fp = do
-  journalFiles <- search "*.org" $ addDirectory fp "journals"
-  pageFiles <- search "*.org" $ addDirectory fp "pages"
+  journalFPs <- search "*.org" $ addDirectory fp "journals"
+  pageFPs <- search "*.org" $ addDirectory fp "pages"
   rfp <- canonicalizePath $ fp ++ "/public/index.html"
-  mapM_ generateWikiFile (pageFiles ++ journalFiles)
   
-  sortedPFiles <- sortOnM System.Directory.getModificationTime pageFiles
-  writeHomePage rfp [("journals", reverse journalFiles), ("pages", sortedPFiles)]
+  journalAsts <- mapM parseFile journalFPs
+  pageAsts <- mapM parseFile pageFPs
+  
+  mapM_ (\(fpath, ast) -> generateWikiFile fpath ast) $ zip (pageFPs ++ journalFPs) (pageAsts ++ journalAsts)
+  
+  sortedPFiles <- sortOnM System.Directory.getModificationTime pageFPs
+  writeHomePage rfp [("journals", reverse journalFPs), ("pages", sortedPFiles)]
 
 writeHomePage :: FilePath -> [(Text, [FilePath])] -> IO ()
 writeHomePage fp args = do
@@ -92,12 +96,15 @@ generateHomePage args =
                    plain $ link url name (str name))
            paths)
       ) relFPs) 
-  
--- Read a wiki file and output its html representation
-generateWikiFile :: FilePath -> IO ()
-generateWikiFile fp = do
+
+parseFile :: FilePath -> IO Pandoc
+parseFile fp = do
   fileText <- readFile fp
-  ast <- parseOrg fileText
+  parseOrg fileText
+
+-- Read a wiki file and output its html representation
+generateWikiFile :: FilePath -> Pandoc -> IO ()
+generateWikiFile fp ast = do
   metadata <- return $ getMetadata [ast]
   modAst <- return $ transformAst metadata ast
   result <- unparseHtml modAst

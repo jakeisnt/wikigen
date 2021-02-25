@@ -1,5 +1,4 @@
 {-#LANGUAGE DeriveGeneric, OverloadedStrings, DataKinds, TypeOperators, NoImplicitPrelude, ScopedTypeVariables #-}
-
 module Wikigen.Html
        ( unparseHtml
        ) where
@@ -10,9 +9,8 @@ import qualified Text.Blaze.Html5.Attributes as A
 import qualified Text.Blaze.Html.Renderer.String as H
 import qualified Data.Text as T
 import Text.Pandoc
-
-newtype Title = Title Text
-
+import Wikigen.Utils (getTitle)
+import Wikigen.Types (Title(..))
 
 -- write Html to a text buffer
 unparseHtml :: Pandoc -> IO T.Text
@@ -22,17 +20,6 @@ unparseHtml ast = do
   
   -- TODO: pandoc to html should support the document title but it doesn't?
   where
-    -- get the title of the file out of the metadata
-    getTitle :: Pandoc -> Title
-    getTitle (Pandoc m _) =
-      let defaultTitle = "Jacob Chvatal's Wiki" in
-      Title $ case nonEmpty $ docTitle m of
-                Just v -> head $ map (\il -> case il of
-                                         Str txt -> txt
-                                         _ -> defaultTitle
-                                     ) v
-                Nothing -> defaultTitle
-
     
     -- add additional information to the html exported
     augmentHtml :: Title -> Text -> Text

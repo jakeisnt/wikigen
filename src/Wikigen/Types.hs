@@ -1,7 +1,7 @@
 {-#LANGUAGE DeriveGeneric, OverloadedStrings, DataKinds, TypeOperators, NoImplicitPrelude #-}
 
 module Wikigen.Types
-       ( Metadata(..), mapMetadata, mergeMetadata, mtMeta
+       ( Metadata(..), mapMetadata, mergeMetadata, mtMeta, Title(..)
        ) where
 
 import Universum
@@ -16,3 +16,5 @@ mapMetadata ms = foldl' mergeMetadata mtMeta ms
 
 mtMeta :: Metadata
 mtMeta = Metadata { fileLinks = [] }
+
+newtype Title = Title Text

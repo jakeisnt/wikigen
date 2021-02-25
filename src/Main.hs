@@ -81,8 +81,7 @@ generateHomePage args =
                        fps))
                args
   in
-  setTitle "Jacob Chvatal's Wiki" $ doc $
-  divWith nullAttr $ Text.Pandoc.Builder.fromList $ 
+  doc $ divWith nullAttr $ Text.Pandoc.Builder.fromList $ 
    concatMap Text.Pandoc.Builder.toList
    (map (\(txt, paths) ->
          para (str txt) <> bulletList

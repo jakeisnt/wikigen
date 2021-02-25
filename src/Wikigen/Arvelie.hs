@@ -28,7 +28,7 @@ data Arvelie = Arvelie
   deriving (Eq, Ord)
 
 instance Show Arvelie where
-  show a = show (year a) ++ show (week a) ++ show (day a)
+  show a = show (year a) ++ (week a):show (day a)
 
 -- The Neralie time format.
 data Neralie = Neralie

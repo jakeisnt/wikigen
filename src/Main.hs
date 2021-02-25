@@ -18,6 +18,7 @@ import Wikigen.File.Utils (addNDirectory, addDirectory)
 import Wikigen.Html (unparseHtml)
 import Wikigen.Utils (getTitle)
 import Wikigen.Types (Title(..))
+import Wikigen.Arvelie (dateToArvelie, parseDay)
 
 -- cli options
 data CliOpts = Generate { dirPath :: FilePath }
@@ -88,13 +89,16 @@ generateHomePage args =
   doc $ divWith nullAttr $ Text.Pandoc.Builder.fromList $ 
    concatMap Text.Pandoc.Builder.toList $
    map (\(txt, paths) ->
-         para (str txt) <> bulletList
-         (map (\(path, (Title name)) ->
-                 let url = T.pack path
-                 in
-                   plain $ link url name (str name))
-           paths)
+         para (str txt) <> bulletList (map getLink paths)
       ) relFPsAndNames
+   where
+     getLink (path, (Title name)) =
+       let url = T.pack path
+           maybeDay = parseDay $ takeBaseName path
+           linkMessage = (case maybeDay of
+                           Just day -> [(Str name), Str " { ", Emph [Str $ show $ dateToArvelie $ day], Str " } "]
+                           Nothing -> [Str name])
+       in plain $ link url name $ fromList linkMessage
 
 parseFile :: FilePath -> IO Pandoc
 parseFile fp = do

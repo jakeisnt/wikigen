@@ -1,14 +1,21 @@
 {-# LANGUAGE NoImplicitPrelude, NamedFieldPuns, OverloadedStrings #-}
 -- | 
 
-module Wikigen.Aravelie
+module Wikigen.Arvelie
        ( timeToAlternate
        , dateToArvelie
        , timeToNeralie
+       , parseDay
        ) where
 
 import Universum
 import Data.Time
+import Data.Time.Parse
+import qualified Text.Show
+
+-- parse a date string to a day
+parseDay :: String -> Maybe Day 
+parseDay s = strptime "%Y-%m-%d" s <&> (localDay . fst)
 
 -- TODO: when this is complete enough, give it its own library!
 
@@ -18,18 +25,27 @@ data Arvelie = Arvelie
   { year :: Int
   , week :: Char
   , day :: Int }
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord)
+
+instance Show Arvelie where
+  show a = show (year a) ++ show (week a) ++ show (day a)
 
 -- The Neralie time format.
 data Neralie = Neralie
   { beat :: Int
   , pulse :: Int }
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord)
+
+instance Show Neralie where
+  show n = show (beat n) ++ ":" ++ show (pulse n)
 
 data AlternateTime = AlternateTime
   { date :: Arvelie
   , time :: Neralie }
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord)
+
+instance Show AlternateTime where
+  show a = show (date a) ++ "/" ++ show (time a)
 
 -- convert a local time to its alternate format
 timeToAlternate :: LocalTime -> AlternateTime
@@ -46,9 +62,9 @@ dateToArvelie dt =
       -- computes the number of day
       daysSoFar = foldl' (\cum month -> (gregorianMonthLength y month) + cum) 0 [0..(m - 1)] + d
       -- add constant to start with letter A, divide by 14 days per week
-      weekNum = floor $ (toRational daysSoFar) / 14 + 65 
+      weekNum = floor $ (toRational daysSoFar) / 14
       -- for months over 26, use '+' to denote the additional days.
-      week = if weekNum > 25 then '+' else chr weekNum
+      week = if weekNum > 27 then '+' else chr (weekNum + 63)
       day = rem daysSoFar 14
   in
   Arvelie { year, week, day }

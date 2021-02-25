@@ -9,9 +9,11 @@ module Wikigen.Aravelie
 
 import Universum
 import Data.Time
-import Data.Char (ord)
+
+-- TODO: when this is complete enough, give it its own library!
 
 -- The Aravelie calendar date format.
+-- The default instance of show is fine here.
 data Arvelie = Arvelie
   { year :: Int
   , week :: Char

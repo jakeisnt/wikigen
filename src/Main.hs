@@ -15,6 +15,7 @@ import System.FilePath
 import Text.Pandoc.Builder
 import System.Directory
 import Wikigen.File.Utils (addNDirectory, addDirectory)
+import Wikigen.Html (unparseHtml)
 
 -- cli options
 data CliOpts = Generate { dirPath :: FilePath }
@@ -80,8 +81,7 @@ generateHomePage args =
                        fps))
                args
   in
-  setTitle "Jacob Chvatal's Wiki" $ doc $
-  divWith nullAttr $ Text.Pandoc.Builder.fromList $ 
+  doc $ divWith nullAttr $ Text.Pandoc.Builder.fromList $ 
    concatMap Text.Pandoc.Builder.toList
    (map (\(txt, paths) ->
          para (str txt) <> bulletList
@@ -112,6 +112,4 @@ parseOrg t = do
   maybeFile <- runIO $ readOrg def t
   return $ fromRight (error "bad") maybeFile
 
--- write Html to a text buffer
-unparseHtml :: Pandoc -> IO T.Text
-unparseHtml ast = runIO (writeHtml5String def ast) >>= handleError
+

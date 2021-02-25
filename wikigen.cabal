@@ -25,9 +25,11 @@ executable wikigen
                      , filepath
                      , universum
                      , lucid
+                     , blaze-html
                      , text
                      , pandoc
                      , pandoc-types
+                     , doctemplates
                      , optparse-generic
                      , shelly
                      , filemanip

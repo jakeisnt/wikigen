@@ -6,8 +6,6 @@ module Wikigen.Transform
 import Text.Pandoc
 import Wikigen.Types
 import Universum
-import System.Directory
--- import Debug.Trace
 import System.FilePath
 import qualified Data.Text as T
 

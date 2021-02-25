@@ -11,18 +11,12 @@ import Universum
 import System.FilePath.GlobPattern (GlobPattern)
 import Wikigen.Metadata (getMetadata)
 import Wikigen.Transform (transformAst)
-import Text.Pandoc.Options
 import System.FilePath
 import Text.Pandoc.Builder
 import System.Directory
 import Wikigen.File.Utils (addNDirectory, addDirectory)
-import qualified Data.Map.Strict as Map
-import qualified Text.DocTemplates.Internal
-import qualified Data.Text.Internal.Lazy
-
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html.Renderer.String as H
-import qualified Text.Blaze.Internal as H
 
 -- cli options
 data CliOpts = Generate { dirPath :: FilePath }

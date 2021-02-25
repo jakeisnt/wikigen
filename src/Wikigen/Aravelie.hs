@@ -18,8 +18,8 @@ data Arvelie = Arvelie
 
 -- The Neralie time format.
 data Neralie = Neralie
-  { beat :: Integer
-  , pulse :: Integer }
+  { beat :: Int
+  , pulse :: Int }
   deriving (Eq, Ord, Show)
 
 data AlternateTime = AlternateTime
@@ -44,9 +44,9 @@ dateToArvelie d =
 -- convert a time to its corresponding neralie time
 timeToNeralie :: TimeOfDay -> Neralie
 timeToNeralie t =
-  let pulses = ((todHour t * 60) + todMin t) * 60
-      res = fromIntegral (pulses / 86.4) -- div (realToFrac $ toInteger $ pulses) 86.4
-      beat = toInteger $ ceiling $ realToFrac res
-      pulse = res - beat
+  let pulses = toRational $ ((todHour t * 60) + todMin t) * 60
+      res = pulses / 86.4
+      beat = floor res
+      pulse = ceiling $ res * 1000
    in
    Neralie { beat, pulse }

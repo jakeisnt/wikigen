@@ -16,6 +16,7 @@ import Text.Pandoc.Builder
 import System.Directory
 import Wikigen.File.Utils (addNDirectory, addDirectory)
 import qualified Text.Blaze.Html5 as H
+import Text.Blaze.Html5.Attributes as A
 import qualified Text.Blaze.Html.Renderer.String as H
 
 -- cli options
@@ -128,8 +129,8 @@ unparseHtml ast = do
     augmentBlaze :: H.Html -> H.Html
     augmentBlaze html =
       H.docTypeHtml $ do
-      H.header $ do
+      H.head $ do
         H.title "this website deserves a title!"
+        H.link H.! A.rel "stylesheet" H.! A.type_ "text/css" H.! A.href "https://jakeisnt.github.io/styles/main.css"
       H.body $ html
-
 -- initial css source: https://github.com/susam/spcss/blob/master/sp.min.css

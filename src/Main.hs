@@ -122,14 +122,14 @@ unparseHtml ast = do
 
   where
     augmentHtmlResult :: Text -> Text
-    augmentHtmlResult = T.pack . H.renderHtml . augmentBlaze . H.toHtml
+    augmentHtmlResult = T.pack . H.renderHtml . augmentBlaze . H.preEscapedToHtml
     
     -- add some information to the header that blaze html neglected to
     augmentBlaze :: H.Html -> H.Html
     augmentBlaze html =
       H.docTypeHtml $ do
       H.header $ do
-        H.title "title"
+        H.title "this website deserves a title!"
       H.body $ html
 
 -- initial css source: https://github.com/susam/spcss/blob/master/sp.min.css

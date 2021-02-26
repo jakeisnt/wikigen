@@ -20,7 +20,6 @@ unparseHtml ast = do
   
   -- TODO: pandoc to html should support the document title but it doesn't?
   where
-    
     -- add additional information to the html exported
     augmentHtml :: Title -> Text -> Text
     augmentHtml tt = T.pack . H.renderHtml . (augmentBlaze tt) . H.preEscapedToHtml

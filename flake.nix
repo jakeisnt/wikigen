@@ -12,19 +12,7 @@
         inherit (lib) attrValues;
         compiler = "ghc8104";
         lib = nixpkgs.lib;
-        overlay = (self: super: {
-          haskellPackages = super.haskellPackages.extend (hself: hsuper:
-            let inherit (super.haskell.lib) unmarkBroken;
-            in {
-              # harg = unmarkBroken hsuper.harg;
-              # higgledy = unmarkBroken hsuper.higgledy;
-            });
-        });
-
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [ overlay ];
-        };
+        pkgs = import nixpkgs { inherit system; };
         package = with pkgs.haskellPackages;
           callPackage (callCabal2nix "wikigen" ./.) { };
       in {

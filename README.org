@@ -1,5 +1,9 @@
 #+TITLE: wikigen
 
+* DEPRECATED
+It's become infeasible for me to depend on software that I am so dependent on one library for, and tightly coupling to the primitives of Pandoc does not provide me the flexibility I would like from my software. 
+
+* Description
 A static site generator for my wiki.
 
 Built to support a directory structure of this type:
